@@ -1,0 +1,5 @@
+deployment = "sample"
+
+[cluster]
+context = "docker-desktop"
+variant = "docker"

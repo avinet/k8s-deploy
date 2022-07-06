@@ -1,0 +1,40 @@
+name: "Deploy to Kubernetes cluster"
+description: "Applies Kubernetes manifests and TOML configuration with template substitution to a cluster."
+branding:
+  icon: upload-cloud
+  color: purple
+inputs:
+  command:
+    description: "The command to run. Must be 'init' or 'update'."
+    required: true
+  manifests:
+    description: "Path to directory containing the templated manifests."
+    required: true
+  values:
+    description: "Path to TOML values file used for variable substitution (e.g. ${{ scope.MY_VARIABLE }})."
+    required: true
+  secrets:
+    description: "Path to TOML secrets file used for variable substitution for variables under the secrets scope (e.g. ${{ secrets.MY_PASSWORD }})"
+    required: false
+  secretsFromEnv:
+    description: "Set to the name of an environment variable. The specified env variable must contain secrets in TOML format."
+    required: false
+  dryRun:
+    description: "If set to true, no changes are applied to the cluster."
+    required: false
+    default: "false"
+runs:
+  using: "docker"
+  image: "Dockerfile"
+  args:
+    - ${{ inputs.command }}
+    - "--manifests"
+    - ${{ inputs.manifests }}
+    - "--values"
+    - ${{ inputs.values }}
+    - "--secrets"
+    - '"${{ inputs.secrets }}"'
+    - "--secrets-from-env"
+    - '"${{ inputs.secretsFromEnv }}"'
+    - "--dry-run"
+    - ${{ inputs.dryRun }}

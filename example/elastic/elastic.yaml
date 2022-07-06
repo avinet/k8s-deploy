@@ -1,0 +1,27 @@
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: elastic
+  namespace: sample
+spec:
+  version: 8.3.1
+  volumeClaimDeletePolicy: DeleteOnScaledownOnly
+  auth:
+    fileRealm:
+      - secretName: elastic-users
+  updateStrategy:
+    changeBudget:
+      maxSurge: 3
+      maxUnavailable: 1
+  nodeSets:
+    - name: elastic
+      count: 1
+      config:
+        node.roles: ["master", "data", "ingest", "transform"]
+        xpack.ml.enabled: false
+      podTemplate:
+        metadata:
+          namespace: sample
+        spec:
+          containers:
+            - name: elasticsearch
