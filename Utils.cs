@@ -68,17 +68,27 @@ public static class Utils
 
     public static async Task KubectlPathCheck()
     {
-        var kubectlPath = "kubectl";
-        if (await RunCommand("kubectl", "version --output=json", silent: true) != 0)
+        var isAvailableInPath = true;
+        try
+        {
+            await RunCommand("kubectl", "version --output=json", silent: true);
+        }
+        catch
+        {
+            isAvailableInPath = false;
+        }
+
+        if (!isAvailableInPath)
         {
             await RunCommand("which", "kubectl", silent: true, output: (path) =>
             {
-                kubectlPath = path.Trim();
+                KubectlPath = path.Trim();
             });
-            KubectlPath = kubectlPath.Replace(" ", "\\ ");
+
+            await RunCommand(KubectlPath, "version --output=json", silent: true);
 
             Console.ForegroundColor = ConsoleColor.DarkBlue;
-            Console.WriteLine($"Using kubectl at: {kubectlPath}");
+            Console.WriteLine($"Using kubectl at: {KubectlPath}");
             Console.ResetColor();
         }
     }
