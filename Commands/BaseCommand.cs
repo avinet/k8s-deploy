@@ -40,6 +40,11 @@ public abstract class BaseCommand
         _manifests = manifests;
         _dryRun = dryRun;
 
+        if (!manifests.Exists)
+            throw new Exception($"Manifests directory {manifests.FullName} does not exist.");
+
+        Environment.CurrentDirectory = manifests.FullName;
+
         if (!values.Exists)
             throw new Exception($"Values file {values.FullName} not found.");
 
