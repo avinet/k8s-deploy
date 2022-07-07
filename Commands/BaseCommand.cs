@@ -100,8 +100,15 @@ public abstract class BaseCommand
 
         _yamlSerializer = new YamlTemplateSerializer(_values, _secrets);
 
+        var c = Utils.KubectlSetContext(_context, false);
+        c.Wait();
+        if (!c.Result)
+            throw new Exception("Could not set the requested context.");
+
         KubernetesClientConfiguration config;
-        config = KubernetesClientConfiguration.BuildConfigFromConfigFile(currentContext: _context);
+        config = KubernetesClientConfiguration.BuildDefaultConfig();
+        if (config.CurrentContext != _context)
+            throw new Exception("Could not get the requested context config.");
 
         Console.WriteLine();
         Console.ForegroundColor = ConsoleColor.Cyan;
@@ -114,7 +121,6 @@ public abstract class BaseCommand
     public async Task<int> Run(CancellationToken cancellationToken)
     {
         await Utils.KubernetesVersionCheck(_client);
-        await Utils.KubectlSetContext(_context, false);
 
         if (!_manifests.Exists)
         {
