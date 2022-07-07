@@ -60,6 +60,16 @@ updateCommand.SetHandler(async (invocationContext) =>
 });
 rootCommand.Add(updateCommand);
 
-await rootCommand.InvokeAsync(args);
+try
+{
+    await rootCommand.InvokeAsync(args);
+}
+catch (Exception ex)
+{
+    Console.ForegroundColor = ConsoleColor.Red;
+    Console.WriteLine(ex.Message);
+    Console.ResetColor();
+    returnCode = 1;
+}
 
 return returnCode;
