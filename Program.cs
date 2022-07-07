@@ -82,7 +82,7 @@ rootCommand.Add(updateCommand);
 
 try
 {
-    await K8sDeploy.Utils.KubectlPathCheck();
+    await K8sDeploy.Utils.EnsureKubectlPresence();
     await rootCommand.InvokeAsync(args);
 }
 catch (Exception ex)

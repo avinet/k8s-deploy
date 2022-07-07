@@ -31,11 +31,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Setup kubectl
-        uses: Azure/setup-kubectl@v2.0
-        with:
-          version: "v1.24.0"
-
       # Login to your cluster
 
       - uses: avinet/k8s-deploy@v1.24.0
@@ -50,9 +45,9 @@ jobs:
 
 ## Prerequisites
 
-The tool relies on `kubectl`. It checks that `kubectl` available is the same
-major and minor version `k8s-deploy` was built against. Currently, this is
-`v1.24`.
+The tool relies on `kubectl`. It automatically downloads the appropriate version
+if not already in path. If in path, it must match the version this tool is built
+against (currently v1.24.0).
 
 The tool checks that the cluster version is not newer and not older than two
 minor versions behind `k8s-deploy`.

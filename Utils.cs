@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using k8s;
@@ -66,7 +67,7 @@ public static class Utils
 
     public static string KubectlPath { get; private set; } = "kubectl";
 
-    public static async Task KubectlPathCheck()
+    public static async Task EnsureKubectlPresence()
     {
         var isAvailableInPath = true;
         try
@@ -80,11 +81,32 @@ public static class Utils
 
         if (!isAvailableInPath)
         {
-            await RunCommand("which", "kubectl", silent: true, output: (path) =>
-            {
-                KubectlPath = path.Trim();
-            });
+            var os = "linux";
+            var ext = "";
 
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                os = "darwin";
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                os = "windows";
+                ext = ".exe";
+            }
+
+            var downloadPath = $"https://storage.googleapis.com/kubernetes-release/release/{k8s.GeneratedApiVersion.SwaggerVersion}/bin/{os}/amd64/kubectl{ext}";
+
+            using (var fs = new FileStream("./kubectl", FileMode.Create))
+            using (var client = new HttpClient())
+            {
+                var stream = await client.GetStreamAsync(downloadPath);
+                await stream.CopyToAsync(fs);
+            }
+
+            if (os != "windows")
+            {
+                await RunCommand("chmod", "+x kubectl", silent: true);
+            }
             await RunCommand(KubectlPath, "version --output=json", silent: true);
 
             Console.ForegroundColor = ConsoleColor.DarkBlue;
