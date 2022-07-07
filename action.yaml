@@ -28,13 +28,13 @@ runs:
   image: "Dockerfile"
   args:
     - ${{ inputs.command }}
-    - "--manifests"
+    - --manifests
     - ${{ inputs.manifests }}
-    - "--values"
-    - ${{ inputs.values }}
+    - --values
+    - "${{ inputs.values }}"
     - "--secrets"
-    - '"${{ inputs.secrets }}"'
-    - "--secrets-from-env"
-    - '"${{ inputs.secretsFromEnv }}"'
-    - "--dry-run"
+    - "${{ inputs.secrets }}"
+    - --secrets-from-env
+    - "${{ inputs.secretsFromEnv }}"
+    - --dry-run
     - ${{ inputs.dryRun }}
