@@ -64,10 +64,29 @@ public static class Utils
         return process.ExitCode;
     }
 
+    public static string KubectlPath { get; private set; } = "kubectl";
+
+    public static async Task KubectlPathCheck()
+    {
+        var kubectlPath = "kubectl";
+        if (await RunCommand("kubectl", "version --output=json", silent: true) != 0)
+        {
+            await RunCommand("which", "kubectl", silent: true, output: (path) =>
+            {
+                kubectlPath = path.Trim();
+            });
+            KubectlPath = kubectlPath.Replace(" ", "\\ ");
+
+            Console.ForegroundColor = ConsoleColor.DarkBlue;
+            Console.WriteLine($"Using kubectl at: {kubectlPath}");
+            Console.ResetColor();
+        }
+    }
+
     public static async Task KubernetesVersionCheck(Kubernetes client)
     {
         VersionInfo? kubectlVersion = null;
-        await Utils.RunCommand("kubectl", "version --output=json", silent: true, output: (result) =>
+        await Utils.RunCommand(KubectlPath, "version --output=json", silent: true, output: (result) =>
         {
             var v = JsonSerializer.Deserialize<KubectlVersion>(result, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
             kubectlVersion = v?.ClientVersion;
@@ -110,7 +129,7 @@ public static class Utils
 
     public static async Task<bool> KubectlSetContext(string context, bool silent = true)
     {
-        return await Utils.RunCommand("kubectl", $"config use-context {context}", silent: silent) == 0;
+        return await Utils.RunCommand(KubectlPath, $"config use-context {context}", silent: silent) == 0;
     }
 
     public static async Task<bool> KubectlApply(string path, string context, bool dryRun)
@@ -118,6 +137,6 @@ public static class Utils
         if (!await KubectlSetContext(context))
             return false;
 
-        return await Utils.RunCommand("kubectl", $"apply -f {path} {(dryRun ? $"--dry-run=client" : "")}") == 0;
+        return await Utils.RunCommand(KubectlPath, $"apply -f {path} {(dryRun ? $"--dry-run=client" : "")}") == 0;
     }
 }

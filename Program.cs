@@ -27,41 +27,62 @@ var returnCode = 0;
 var initCommand = new Command("init", "Create a new deployment");
 initCommand.SetHandler(async (invocationContext) =>
 {
-    var values = invocationContext.ParseResult.GetValueForOption(valuesOption);
-    var secrets = invocationContext.ParseResult.GetValueForOption(secretsOption);
-    var secretsFromEnv = invocationContext.ParseResult.GetValueForOption(secretsFromEnvOption);
-    var manifests = invocationContext.ParseResult.GetValueForOption(manifestsOption)!;
-    var dryRun = invocationContext.ParseResult.GetValueForOption(dryRunOption);
-    returnCode = await new K8sDeploy.InitCommand(
-        values!,
-        string.IsNullOrWhiteSpace(secrets) ? null : new FileInfo(secrets),
-        secretsFromEnv,
-        manifests,
-        dryRun
-    ).Run(invocationContext.GetCancellationToken());
+    try
+    {
+        var values = invocationContext.ParseResult.GetValueForOption(valuesOption);
+        var secrets = invocationContext.ParseResult.GetValueForOption(secretsOption);
+        var secretsFromEnv = invocationContext.ParseResult.GetValueForOption(secretsFromEnvOption);
+        var manifests = invocationContext.ParseResult.GetValueForOption(manifestsOption)!;
+        var dryRun = invocationContext.ParseResult.GetValueForOption(dryRunOption);
+        returnCode = await new K8sDeploy.InitCommand(
+            values!,
+            string.IsNullOrWhiteSpace(secrets) ? null : new FileInfo(secrets),
+            secretsFromEnv,
+            manifests,
+            dryRun
+        ).Run(invocationContext.GetCancellationToken());
+    }
+    catch (Exception ex)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine(ex.Message);
+        Console.ResetColor();
+        returnCode = 1;
+    }
 });
 rootCommand.Add(initCommand);
 
 var updateCommand = new Command("update", "Update an existing deployment");
 updateCommand.SetHandler(async (invocationContext) =>
 {
-    var values = invocationContext.ParseResult.GetValueForOption(valuesOption);
-    var secrets = invocationContext.ParseResult.GetValueForOption(secretsOption);
-    var secretsFromEnv = invocationContext.ParseResult.GetValueForOption(secretsFromEnvOption);
-    var manifests = invocationContext.ParseResult.GetValueForOption(manifestsOption)!;
-    var dryRun = invocationContext.ParseResult.GetValueForOption(dryRunOption);
-    returnCode = await new K8sDeploy.UpdateCommand(
-        values!,
-        string.IsNullOrWhiteSpace(secrets) ? null : new FileInfo(secrets),
-        secretsFromEnv,
-        manifests,
-        dryRun
-    ).Run(invocationContext.GetCancellationToken());
+    try
+    {
+        var values = invocationContext.ParseResult.GetValueForOption(valuesOption);
+        var secrets = invocationContext.ParseResult.GetValueForOption(secretsOption);
+        var secretsFromEnv = invocationContext.ParseResult.GetValueForOption(secretsFromEnvOption);
+        var manifests = invocationContext.ParseResult.GetValueForOption(manifestsOption)!;
+        var dryRun = invocationContext.ParseResult.GetValueForOption(dryRunOption);
+        returnCode = await new K8sDeploy.UpdateCommand(
+            values!,
+            string.IsNullOrWhiteSpace(secrets) ? null : new FileInfo(secrets),
+            secretsFromEnv,
+            manifests,
+            dryRun
+        ).Run(invocationContext.GetCancellationToken());
+    }
+    catch (Exception ex)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine(ex.Message);
+        Console.ResetColor();
+        returnCode = 1;
+    }
 });
 rootCommand.Add(updateCommand);
 
 try
 {
+    await K8sDeploy.Utils.KubectlPathCheck();
     await rootCommand.InvokeAsync(args);
 }
 catch (Exception ex)
