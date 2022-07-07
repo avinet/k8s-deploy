@@ -1,6 +1,6 @@
 # @avinet/k8s-deploy
 
-This is a deployment tool for Kubernetes clusters that support simple variable
+This is a deployment tool for Kubernetes clusters that supports simple variable
 substitution in the style of Github Actions (`${{ scope.MY_VARIABLE }}`).
 
 ## Why should I use this?
@@ -20,14 +20,32 @@ details.
 
 The tool is also provided as a docker based Github Action.
 
+With secrets from environment.
+
 ```yaml
-- uses: avinet/k8s-deploy@v1
-  with:
-    command: update ## or init
-    manifests: ./manifests
-    values: ./cluster.toml
-    secrets: ./secrets.toml ## Only one secrets option can be specified at a time.
-    secrets-from-env: SECRETS_TOML ## Only one secrets option can be specified at a time.
+jobs:
+  deploy:
+    name: Deploy to Azure Kubernetes (dev)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup kubectl
+        uses: Azure/setup-kubectl@v2.0
+        with:
+          version: "v1.24.0"
+
+      # Login to your cluster
+
+      - uses: avinet/k8s-deploy@v1.24.0
+        with:
+          command: update ## or init
+          manifests: ./manifests
+          values: ./cluster.toml
+          secretsFromEnv: SECRETS_TOML
+          env:
+            SECRETS_TOML: ${{ secrets.D_DEVDT_AKS_SECRETS_TOML }}
 ```
 
 ## Prerequisites

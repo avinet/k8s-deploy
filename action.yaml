@@ -11,10 +11,10 @@ inputs:
     description: "Path to directory containing the templated manifests."
     required: true
   values:
-    description: "Path to TOML values file used for variable substitution (e.g. ${{ scope.MY_VARIABLE }})."
+    description: "Path to TOML values file used for variable substitution."
     required: true
   secrets:
-    description: "Path to TOML secrets file used for variable substitution for variables under the secrets scope (e.g. ${{ secrets.MY_PASSWORD }})"
+    description: "Path to TOML secrets file used for variable substitution for variables under the secrets scope."
     required: false
   secretsFromEnv:
     description: "Set to the name of an environment variable. The specified env variable must contain secrets in TOML format."
